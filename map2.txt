@@ -1,0 +1,9 @@
+info - Bounds/info are ignored by ui.py right now. I will probably remove bounds, I don't see myself changing the 30x30 grid.
+info - Any line starting with "room" will be drawn onto the play area.
+info - The first two numbers describe the location of the upper left square of the room
+info - The last two numbers describe the location of the bottom right square of the room
+info - Feel free to make your own rooms and test them out!
+bounds 0 0 29 29
+room 0 0 4 4
+room 3 3 12 3
+room 12 3 12 12
