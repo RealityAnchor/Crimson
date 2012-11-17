@@ -30,31 +30,31 @@ itxt = pygame.font.SysFont('timesnewroman',16) #for objects in play area
 class Unit():
     def move(self, magnitude, direction):
         out_magnitude = 0
+        plural = ''
         for i in range(magnitude):
-            if direction == 'right' and self.x < 29 and m.playarea[self.x+1][self.y][0] == True:
+            if direction == 'right' and self.x < 29 and m[current_map].playarea[self.x+1][self.y][0] == True:
                 self.x += 1
                 out_magnitude+=1
-            elif direction == 'left' and self.x > 0 and m.playarea[self.x-1][self.y][0] == True:
+            elif direction == 'left' and self.x > 0 and m[current_map].playarea[self.x-1][self.y][0] == True:
                 self.x -= 1
                 out_magnitude+=1
-            elif direction == 'down' and self.y < 29 and m.playarea[self.x][self.y+1][0] == True:
+            elif direction == 'down' and self.y < 29 and m[current_map].playarea[self.x][self.y+1][0] == True:
                 self.y += 1
                 out_magnitude+=1
-            elif direction == 'up' and self.y > 0 and m.playarea[self.x][self.y-1][0] == True:
+            elif direction == 'up' and self.y > 0 and m[current_map].playarea[self.x][self.y-1][0] == True:
                 self.y -= 1
                 out_magnitude+=1
         if out_magnitude > 0:
-            plural = ''
             if out_magnitude > 1:
                 plural = 's'
             infopaste("[{0}] moves [{1}] square{2} {3}.".format(self.name,out_magnitude,plural,direction))
 
 
-
-class Map():
+class Map_Grid():
     def __init__(self,map_in):
         self.playarea = []
         self.mapfile = open(map_in).read().split("\n")
+        self.name = map_in[0:map_in.find('.')]
 
         #Create a list of range 30 with 30 elements in it.
         for i in range(30):
@@ -118,10 +118,12 @@ def check_keys():
             if event.key == K_a:
                 if abs(a.x - p.x) < 2 and abs(a.y - p.y) <= 1: #if p and a are within 1 square
                     damage(2,a)
-            if event.key == K_RETURN:
-                if p.x == 3 and p.y == 3:
-                    infopaste("enter")
-                    m = Map("map2.txt")
+
+            if p.x == 3 and p.y == 3:
+                if event.key == K_RETURN:
+                    infopaste("Enter door.")
+                    current_map = "map2"
+                    infopaste(str(m[current_map].name))
 
                 
 def loc(in_x,in_y): #converts x,y from grid location to pixel location
@@ -156,9 +158,9 @@ def update_screen():
     screen.fill(BLACK)
     for i in range(30):
         for j in range(30):
-            if m.playarea[i][j][0] == True:
+            if m[current_map].playarea[i][j][0] == True:
                 pygame.draw.rect(screen, WHITE, Rect((1+i*21,1+j*21),(20,20)))
-            elif m.playarea[i][j][0] == False:
+            elif m[current_map].playarea[i][j][0] == False:
                 pygame.draw.rect(screen, BLACK, Rect((1+i*21,1+j*21),(20,20)))
 
             
@@ -193,7 +195,10 @@ name = "Your Name Here"  #input eventually. any trivial way to do this in pygame
 info = []
 p = Player(0,0,name)
 a = Enemy(4,4,"Monstrous Horse")
-m = Map("map.txt")
+
+m = {"map" :Map_Grid("map.txt"),
+     "map2":Map_Grid("map2.txt")}
+current_map = "map"
 
 #Main loop
 if __name__ == '__main__':
@@ -201,3 +206,6 @@ if __name__ == '__main__':
         check_keys()
         update_screen()
         pygame.display.update()
+
+
+        
