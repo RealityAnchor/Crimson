@@ -4,6 +4,8 @@ info - The first two numbers describe the location of the upper left square of t
 info - The last two numbers describe the location of the bottom right square of the room
 info - Feel free to make your own rooms and test them out!
 bounds 0 0 29 29
-room 0 0 4 4
-room 3 3 12 3
-room 12 3 12 12
+name, The Hole of Murk
+room, 0, 0, 4, 4
+room, 3, 3, 12, 3
+room, 12, 3, 12, 12
+door, 3, 3, The Moor of Coagulation, 3, 3
