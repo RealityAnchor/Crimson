@@ -49,6 +49,8 @@ class Unit():
                 plural = 's'
             main.infopaste("[{0}] moves [{1}] square{2} {3}.".format(self.name,out_magnitude,plural,direction))
 
+
+
 class Player(Unit):
     def __init__(self,x,y,name):
         self.x = x
@@ -59,6 +61,37 @@ class Player(Unit):
         self.actions = 3
     def attack(self,amount,target):
         pass
+    def get_target(self, mag): #mag = magnitude of range
+        cur_target = None #current target
+        main.r.x, main.r.y = main.p.x, main.p.y #reticule x/y
+        mouse = 'up'
+        while cur_target == None:
+            main.update_screen()
+            if mouse == 'up':
+                screen.blit(main.r.unclicked,(main.mouse_to_grid(pygame.mouse.get_pos(),-4)))
+            elif mouse == 'down':
+                screen.blit(main.r.clicked,(main.mouse_to_grid(pygame.mouse.get_pos(),-4)))
+            for event in pygame.event.get():
+                if pygame.mouse.get_pressed()[0]:
+                    mouse = 'down'
+                elif not pygame.mouse.get_pressed()[0]:
+                    mouse = 'up'
+                if event.type == MOUSEBUTTONUP:
+                    cur_target = main.loc2(main.mouse_to_grid(pygame.mouse.get_pos(),-4))
+                    main.infopaste(str(cur_target[0]) + ' ' + str(cur_target[1]))
+                    
+                    
+            pygame.display.update()
+            
+        
+            
+            
+class Reticule(Unit):
+    def __init__(self):
+        self.unclicked = pygame.image.load("target.png")
+        self.clicked = pygame.image.load("target_clicked.png")
+        self.x = None
+        self.y = None
 
 class Mob(Unit):
     def __init__(self,x,y,name):
@@ -102,17 +135,17 @@ class CrimsonGame():
         #Set initial variables
         self.name = "Your Name Here"  #input eventually. any trivial way to do this in pygame?
         self.info = []
-        self.p = Player(0,0,self.name)
-        self.a = Mob(4,4,"Monstrous Horse")
-
-        self.m = {"The Moor of Coagulation" :Map("map.txt"),
+        self.p = Player(0,0,self.name) #Player
+        self.a = Mob(4,4,"Monstrous Horse") #Temporary
+        self.m = {"The Moor of Coagulation" :Map("map.txt"), #Map
                   "The Hole of Murk":Map("map2.txt")}
+        self.r = Reticule()
 
         self.current_map = "The Moor of Coagulation"
 
         
 
-    #Functions    
+    #Functions
     def check_keys(self):
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -131,6 +164,9 @@ class CrimsonGame():
                     if self.a.hp > 0:
                         if abs(self.a.x - self.p.x) < 2 and abs(self.a.y - self.p.y) <= 1: #if p and a are within 1 square
                             self.damage(2,self.a)
+                if event.key == K_b:
+                    main.p.get_target(5)
+    
                 #Entering doors
                 if self.m[self.current_map].playarea[self.p.x][self.p.y]['door'] == True:
                     if event.key == K_RETURN:
@@ -146,6 +182,14 @@ class CrimsonGame():
     def loc(self,in_x,in_y,x_nudge=0,y_nudge=0): #converts x,y from grid location to pixel location
         out_x = in_x*21+5+x_nudge
         out_y = in_y*21+1-y_nudge
+        return out_x,out_y
+    def loc2(self, xy): #converts x,y from pixel to grid
+        out_x = int((xy[0]) / 21)
+        out_y = int((xy[1]) / 21)
+        return out_x,out_y
+    def mouse_to_grid(self,xy,x_nudge=0,y_nudge=0): #converts mouse location to grid location
+        out_x = int((xy[0]) / 21) * 21 + 5 + x_nudge
+        out_y = int((xy[1]) / 21) * 21 + 1 - y_nudge
         return out_x,out_y
 
 
@@ -181,7 +225,6 @@ class CrimsonGame():
                 if self.m[self.current_map].playarea[i][j]['door'] == True:
                     screen.blit(txt.render("[]", False, GREY),(self.loc(i,j,-2,-2)))
 
-                
         #player
         screen.blit(itxt.render("@", False, BLUE),(self.loc(self.p.x,self.p.y,-2,+2))) #model
         screen.blit(txt.render("{0}".format(self.p.name), False, BLUE, WHITE),(634,1)) #name
